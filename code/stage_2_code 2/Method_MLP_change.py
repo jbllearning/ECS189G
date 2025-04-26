@@ -34,18 +34,18 @@ class Method_MLP(method, nn.Module):
         # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
         self.activation_func_1 = nn.ReLU()
         self.batch_norm_1 = nn.BatchNorm1d(512)
-        self.dropout_1 = nn.Dropout(0.2)
+        self.dropout_1 = nn.Dropout(0.5)
 
 
         self.fc_layer_2 = nn.Linear(512, 256)
         self.activation_func_2 = nn.ReLU()
         self.batch_norm_2 = nn.BatchNorm1d(256)
-        self.dropout_2 = nn.Dropout(0.2)
+        self.dropout_2 = nn.Dropout(0.5)
 
         self.fc_layer_3 = nn.Linear(256, 128)
         self.activation_func_3 = nn.ReLU()
         self.batch_norm_3 = nn.BatchNorm1d(128)
-        self.dropout_3 = nn.Dropout(0.2)
+        self.dropout_3 = nn.Dropout(0.5)
 
 
         self.fc_layer_4 = nn.Linear(128, 10)
@@ -121,7 +121,8 @@ class Method_MLP(method, nn.Module):
         plt.ylabel('Loss')
         plt.title('Training Convergence Plot')
         plt.grid(True)
-        plt.savefig('training_convergence_plot.png')
+        plt.savefig('100 epoch_d=0.5 training_convergence_plot.png')
+        #plt.savefig('500 epoch training_convergence_plot.png')
         plt.show()
 
     def test(self, X):
