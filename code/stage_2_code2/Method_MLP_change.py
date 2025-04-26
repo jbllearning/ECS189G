@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 class Method_MLP(method, nn.Module):
     data = None
     # it defines the max rounds to train the model
-    #max_epoch = 500
-    max_epoch = 100
+    max_epoch = 500
+    #max_epoch = 100
     # it defines the learning rate for gradient descent based optimizer for model learning
     learning_rate = 1e-3
 
@@ -121,8 +121,8 @@ class Method_MLP(method, nn.Module):
         plt.ylabel('Loss')
         plt.title('Training Convergence Plot')
         plt.grid(True)
-        plt.savefig('100 epoch_d=0.5 training_convergence_plot.png')
-        #plt.savefig('500 epoch training_convergence_plot.png')
+        #plt.savefig('100 epoch_d=0.5 training_convergence_plot.png')
+        plt.savefig('500 epoch_d=0.5 training_convergence_plot.png')
         plt.show()
 
     def test(self, X):
