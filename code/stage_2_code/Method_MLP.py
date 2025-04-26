@@ -121,7 +121,8 @@ class Method_MLP(method, nn.Module):
         plt.ylabel('Loss')
         plt.title('Training Convergence Plot')
         plt.grid(True)
-        plt.savefig('training_convergence_plot.png')
+        plt.savefig('100 epoch training_convergence_plot.png')
+        #plt.savefig('500 epoch training_convergence_plot.png')
         plt.show()
 
     def test(self, X):
