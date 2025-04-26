@@ -10,6 +10,7 @@ from code.stage_2_code.Evaluate_Accuracy import Evaluate_Accuracy
 import torch
 from torch import nn
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Method_MLP(method, nn.Module):
@@ -87,6 +88,8 @@ class Method_MLP(method, nn.Module):
         # for training accuracy investigation purpose
         accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
 
+        loss_history = [] # store loss per poch
+
         # it will be an iterative gradient updating process
         # we don't do mini-batch, we use the whole input as one batch
         # you can try to split X and y into smaller-sized batches by yourself
@@ -107,10 +110,20 @@ class Method_MLP(method, nn.Module):
             # update the variables according to the optimizer and the gradients calculated by the above loss.backward function
             optimizer.step()
 
+            loss_history.append(train_loss.item()) # save loss
+
             if epoch%10 == 0:
                 accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
                 print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
-    
+        plt.figure()
+        plt.plot(range(self.max_epoch), loss_history)
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Training Convergence Plot')
+        plt.grid(True)
+        plt.savefig('training_convergence_plot.png')
+        plt.show()
+
     def test(self, X):
         # do the testing, and result the result
         y_pred = self.forward(torch.FloatTensor(np.array(X)))
@@ -125,4 +138,5 @@ class Method_MLP(method, nn.Module):
         print('--start testing...')
         pred_y = self.test(self.data['test']['X'])
         return {'pred_y': pred_y, 'true_y': self.data['test']['y']}
-            
+
+
