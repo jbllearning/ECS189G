@@ -6,138 +6,196 @@ Concrete MethodModule class for a specific learning MethodModule
 # License: TBD
 
 from code.base_class.method import method
-from code.stage_2_code.Evaluate_Accuracy import Evaluate_Accuracy
+from code.stage_3_code.Evaluate_Accuracy import Evaluate_Accuracy
 import torch
 from torch import nn
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-class Method_MLP(method, nn.Module):
-    data = None
-    # it defines the max rounds to train the model
-    #max_epoch = 500
-    max_epoch = 100
-    # it defines the learning rate for gradient descent based optimizer for model learning
-    learning_rate = 1e-3
-
-    # it defines the the MLP model architecture, e.g.,
-    # how many layers, size of variables in each layer, activation function, etc.
-    # the size of the input/output portal of the model architecture should be consistent with our data input and desired output
-    def __init__(self, mName, mDescription):
-        method.__init__(self, mName, mDescription)
-        nn.Module.__init__(self)
+import torch.optim as optim
+import time
 
 
-        # check here for nn.Linear doc: https://pytorch.org/docs/stable/generated/torch.nn.Linear.html
-        self.fc_layer_1 = nn.Linear(784, 512)
-        # check here for nn.ReLU doc: https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html
-        self.activation_func_1 = nn.ReLU()
-        self.batch_norm_1 = nn.BatchNorm1d(512)
-        self.dropout_1 = nn.Dropout(0.2)
+class Method_CNN(nn.Module):
+    def __init__(self, mName, mDescription, dataset_name):
+        super(Method_CNN, self).__init__()
+        self.method_name = mName
+        self.method_description = mDescription
+        self.dataset_name = dataset_name
 
+        # Configure based on dataset
+        if dataset_name == 'ORL':
+            self.input_channels = 1  # Using only R channel
+            self.input_size = (112, 92)
+            self.num_classes = 40
+            self.fc_input_size = 128 * 5 * 4  # Calculated based on conv layers
+        elif dataset_name == 'MNIST':
+            self.input_channels = 1
+            self.input_size = (28, 28)
+            self.num_classes = 10
+            self.fc_input_size = 128 * 3 * 3
+        elif dataset_name == 'CIFAR10':
+            self.input_channels = 3
+            self.input_size = (32, 32)
+            self.num_classes = 10
+            self.fc_input_size = 128 * 3 * 3
 
-        self.fc_layer_2 = nn.Linear(512, 256)
-        self.activation_func_2 = nn.ReLU()
-        self.batch_norm_2 = nn.BatchNorm1d(256)
-        self.dropout_2 = nn.Dropout(0.2)
+        # Convolutional layers
+        self.conv_layers = nn.Sequential(
+            # Layer 1
+            nn.Conv2d(self.input_channels, 32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Dropout(0.25),
 
-        self.fc_layer_3 = nn.Linear(256, 128)
-        self.activation_func_3 = nn.ReLU()
-        self.batch_norm_3 = nn.BatchNorm1d(128)
-        self.dropout_3 = nn.Dropout(0.2)
+            # Layer 2
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Dropout(0.25),
 
+            # Layer 3
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Dropout(0.25)
+        )
 
-        self.fc_layer_4 = nn.Linear(128, 10)
-        # check here for nn.Softmax doc: https://pytorch.org/docs/stable/generated/torch.nn.Softmax.html
-        #self.activation_func_2 = nn.Softmax(dim=1)
+        # Fully connected layers
+        self.fc_layers = nn.Sequential(
+            nn.Linear(self.fc_input_size, 512),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(512, self.num_classes)
+        )
 
-
-    # it defines the forward propagation function for input x
-    # this function will calculate the output layer by layer
+        # Training parameters
+        self.max_epoch = 100
+        self.learning_rate = 0.001
+        self.batch_size = 64 if dataset_name != 'ORL' else 16  # Smaller batch for ORL
 
     def forward(self, x):
-        '''Forward propagation'''
-        # hidden layer embeddings
-        h1 = self.activation_func_1(self.fc_layer_1(x))
-        h1 = self.batch_norm_1(h1)
-        h1 = self.dropout_1(h1)
+        x = self.conv_layers(x)
+        x = x.view(x.size(0), -1)  # Flatten
+        x = self.fc_layers(x)
+        return x
 
-        h2 = self.activation_func_2(self.fc_layer_2(h1))
-        h2 = self.batch_norm_2(h2)
-        h2 = self.dropout_2(h2)
+    def train_model(self, train_loader, test_loader):
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5)
 
-        h3 = self.activation_func_3(self.fc_layer_3(h2))
-        h3 = self.batch_norm_3(h3)
-        h3 = self.dropout_3(h3)
-        # outout layer result
-        # self.fc_layer_2(h) will be a nx2 tensor
-        # n (denotes the input instance number): 0th dimension; 2 (denotes the class number): 1st dimension
-        # we do softmax along dim=1 to get the normalized classification probability distributions for each instance
-        y_pred = self.activation_func_3(self.fc_layer_4(h3))
-        return y_pred
+        train_loss_history = []
+        val_loss_history = []
+        accuracy_history = []
 
-    # backward error propagation will be implemented by pytorch automatically
-    # so we don't need to define the error backpropagation function here
+        best_accuracy = 0
+        best_model = None
 
-    def train(self, X, y):
-        # check here for the torch.optim doc: https://pytorch.org/docs/stable/optim.html
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate, weight_decay=1e-5)
-        # check here for the nn.CrossEntropyLoss doc: https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
-        loss_function = nn.CrossEntropyLoss()
-        # for training accuracy investigation purpose
-        accuracy_evaluator = Evaluate_Accuracy('training evaluator', '')
+        for epoch in range(self.max_epoch):
+            self.train()
+            running_loss = 0.0
+            epoch_start = time.time()
 
-        loss_history = [] # store loss per poch
+            # Training loop
+            for images, labels in train_loader:
+                optimizer.zero_grad()
+                outputs = self(images)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+                running_loss += loss.item() * images.size(0)
 
-        # it will be an iterative gradient updating process
-        # we don't do mini-batch, we use the whole input as one batch
-        # you can try to split X and y into smaller-sized batches by yourself
-        for epoch in range(self.max_epoch): # you can do an early stop if self.max_epoch is too much...
-            # get the output, we need to covert X into torch.tensor so pytorch algorithm can operate on it
-            y_pred = self.forward(torch.FloatTensor(np.array(X)))
-            # convert y to torch.tensor as well
-            y_true = torch.LongTensor(np.array(y))
-            # calculate the training loss
-            train_loss = loss_function(y_pred, y_true)
+            # Validation loop
+            val_loss, metrics = self.evaluate(test_loader)
+            train_loss = running_loss / len(train_loader.dataset)
 
-            # check here for the gradient init doc: https://pytorch.org/docs/stable/generated/torch.optim.Optimizer.zero_grad.html
-            optimizer.zero_grad()
-            # check here for the loss.backward doc: https://pytorch.org/docs/stable/generated/torch.Tensor.backward.html
-            # do the error backpropagation to calculate the gradients
-            train_loss.backward()
-            # check here for the opti.step doc: https://pytorch.org/docs/stable/optim.html
-            # update the variables according to the optimizer and the gradients calculated by the above loss.backward function
-            optimizer.step()
+            # Store history
+            train_loss_history.append(train_loss)
+            val_loss_history.append(val_loss)
+            accuracy_history.append(metrics['accuracy'])
 
-            loss_history.append(train_loss.item()) # save loss
+            # Save best model
+            if metrics['accuracy'] > best_accuracy:
+                best_accuracy = metrics['accuracy']
+                best_model = self.state_dict()
 
-            if epoch%10 == 0:
-                accuracy_evaluator.data = {'true_y': y_true, 'pred_y': y_pred.max(1)[1]}
-                print('Epoch:', epoch, 'Accuracy:', accuracy_evaluator.evaluate(), 'Loss:', train_loss.item())
-        plt.figure()
-        plt.plot(range(self.max_epoch), loss_history)
+            # Print statistics
+            epoch_time = time.time() - epoch_start
+            print(f'Epoch {epoch + 1}/{self.max_epoch} - {epoch_time:.2f}s')
+            print(f'Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}')
+            print(f'Accuracy: {metrics["accuracy"]:.4f} | Precision: {metrics["precision"]:.4f}')
+            print(f'Recall: {metrics["recall"]:.4f} | F1: {metrics["f1"]:.4f}')
+            print('-' * 50)
+
+            # Early stopping if accuracy reaches 95%
+            if metrics['accuracy'] >= 0.95:
+                print(f"Early stopping at {metrics['accuracy'] * 100:.2f}% accuracy")
+                break
+
+        # Load best model
+        self.load_state_dict(best_model)
+
+        # Plot training history
+        self.plot_history(train_loss_history, val_loss_history, accuracy_history)
+
+        return best_accuracy
+
+    def evaluate(self, data_loader):
+        self.eval()
+        criterion = nn.CrossEntropyLoss()
+        total_loss = 0.0
+        all_preds = []
+        all_labels = []
+
+        with torch.no_grad():
+            for images, labels in data_loader:
+                outputs = self(images)
+                loss = criterion(outputs, labels)
+                total_loss += loss.item() * images.size(0)
+                _, preds = torch.max(outputs, 1)
+                all_preds.extend(preds.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
+
+        # Calculate metrics
+        loss = total_loss / len(data_loader.dataset)
+        accuracy = accuracy_score(all_labels, all_preds)
+        precision = precision_score(all_labels, all_preds, average='weighted')
+        recall = recall_score(all_labels, all_preds, average='weighted')
+        f1 = f1_score(all_labels, all_preds, average='weighted')
+
+        metrics = {
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1
+        }
+
+        return loss, metrics
+
+    def plot_history(self, train_loss, val_loss, accuracy):
+        plt.figure(figsize=(12, 5))
+
+        plt.subplot(1, 2, 1)
+        plt.plot(train_loss, label='Train Loss')
+        plt.plot(val_loss, label='Validation Loss')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
-        plt.title('Training Convergence Plot')
+        plt.title('Training and Validation Loss')
+        plt.legend()
         plt.grid(True)
-        plt.savefig('100 epoch training_convergence_plot.png')
-        #plt.savefig('500 epoch training_convergence_plot.png')
+
+        plt.subplot(1, 2, 2)
+        plt.plot(accuracy, label='Accuracy', color='green')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.title('Validation Accuracy')
+        plt.legend()
+        plt.grid(True)
+
+        plt.tight_layout()
+        plt.savefig(f'{self.dataset_name}_training_history.png')
         plt.show()
-
-    def test(self, X):
-        # do the testing, and result the result
-        y_pred = self.forward(torch.FloatTensor(np.array(X)))
-        # convert the probability distributions to the corresponding labels
-        # instances will get the labels corresponding to the largest probability
-        return y_pred.max(1)[1]
-    
-    def run(self):
-        print('method running...')
-        print('--start training...')
-        self.train(self.data['train']['X'], self.data['train']['y'])
-        print('--start testing...')
-        pred_y = self.test(self.data['test']['X'])
-        return {'pred_y': pred_y, 'true_y': self.data['test']['y']}
-
-
