@@ -1,6 +1,6 @@
 import pickle
-from method_cnn import Method_CNN
-from data_processor import prepare_data
+from code.stage_3_code.Method_CNN import Method_CNN
+from code.stage_3_code.Data_Preprocessor import prepare_data
 
 
 def train_and_evaluate(dataset_name, data_path):
@@ -29,6 +29,6 @@ def train_and_evaluate(dataset_name, data_path):
     return metrics
 
 # Example usage:
-# ORL_results = train_and_evaluate('ORL', 'ORL')
+ORL_results = train_and_evaluate('ORL', '/Users/jessie/Documents/GitHub/ECS189G/data/stage_3_data/ORL')
 # MNIST_results = train_and_evaluate('MNIST', 'MNIST')
 # CIFAR10_results = train_and_evaluate('CIFAR10', 'CIFAR10')
