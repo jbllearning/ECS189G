@@ -27,6 +27,9 @@ class ImageDataset(Dataset):
             image = image / 255.0
             image = torch.FloatTensor(image).permute(2, 0, 1)  # HWC to CHW
 
+        if self.dataset_name == 'ORL':
+            label = label - 1  # Convert from 1-40 to 0-39
+
         label = torch.LongTensor([label])[0]  # Convert to tensor
 
         return image, label

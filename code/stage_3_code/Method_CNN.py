@@ -5,11 +5,9 @@ Concrete MethodModule class for a specific learning MethodModule
 # Copyright (c) 2017-Current Jiawei Zhang <jiawei@ifmlab.org>
 # License: TBD
 
-from code.base_class.method import method
-from code.stage_3_code.Evaluate_Accuracy import Evaluate_Accuracy
+from code.stage_3_code.Evaluate_Metrics import Evaluate_Metrics
 import torch
 from torch import nn
-import numpy as np
 import matplotlib.pyplot as plt
 
 import torch.optim as optim
@@ -28,7 +26,7 @@ class Method_CNN(nn.Module):
             self.input_channels = 1  # Using only R channel
             self.input_size = (112, 92)
             self.num_classes = 40
-            self.fc_input_size = 128 * 5 * 4  # Calculated based on conv layers
+            self.fc_input_size = 128 * 14 * 11  # = 19712
         elif dataset_name == 'MNIST':
             self.input_channels = 1
             self.input_size = (28, 28)
@@ -78,8 +76,14 @@ class Method_CNN(nn.Module):
         self.batch_size = 64 if dataset_name != 'ORL' else 16  # Smaller batch for ORL
 
     def forward(self, x):
-        x = self.conv_layers(x)
+        # print(f"Input shape: {x.shape}")
+
+        x = self.conv_layers(x) # Convolutional layers
+        # print(f"After conv layers: {x.shape}")
+
         x = x.view(x.size(0), -1)  # Flatten
+        # print(f"After flattening: {x.shape}")
+
         x = self.fc_layers(x)
         return x
 
@@ -161,20 +165,18 @@ class Method_CNN(nn.Module):
                 all_labels.extend(labels.cpu().numpy())
 
         # Calculate metrics
-        loss = total_loss / len(data_loader.dataset)
-        accuracy = accuracy_score(all_labels, all_preds)
-        precision = precision_score(all_labels, all_preds, average='weighted')
-        recall = recall_score(all_labels, all_preds, average='weighted')
-        f1 = f1_score(all_labels, all_preds, average='weighted')
+        # Initialize once
+        metrics_evaluator = Evaluate_Metrics('metrics evaluator', '')
 
-        metrics = {
-            'accuracy': accuracy,
-            'precision': precision,
-            'recall': recall,
-            'f1': f1
+        # In evaluation code:
+        metrics_evaluator.data = {
+            'true_y': all_labels,
+            'pred_y': all_preds
         }
-
-        return loss, metrics
+        metrics = metrics_evaluator.evaluate()
+        # Add loss to metrics dictionary
+        metrics['loss'] = total_loss / len(data_loader.dataset)
+        return metrics
 
     def plot_history(self, train_loss, val_loss, accuracy):
         plt.figure(figsize=(12, 5))
