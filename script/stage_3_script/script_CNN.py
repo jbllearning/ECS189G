@@ -1,4 +1,6 @@
 import pickle
+from pathlib import Path
+
 from code.stage_3_code.Method_CNN import Method_CNN
 from code.stage_3_code.Data_Preprocessor import prepare_data
 

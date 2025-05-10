@@ -114,12 +114,12 @@ class Method_CNN(nn.Module):
                 running_loss += loss.item() * images.size(0)
 
             # Validation loop
-            val_loss, metrics = self.evaluate(test_loader)
+            metrics = self.evaluate(test_loader)
             train_loss = running_loss / len(train_loader.dataset)
 
             # Store history
             train_loss_history.append(train_loss)
-            val_loss_history.append(val_loss)
+            val_loss_history.append(metrics['loss'])
             accuracy_history.append(metrics['accuracy'])
 
             # Save best model
@@ -130,7 +130,7 @@ class Method_CNN(nn.Module):
             # Print statistics
             epoch_time = time.time() - epoch_start
             print(f'Epoch {epoch + 1}/{self.max_epoch} - {epoch_time:.2f}s')
-            print(f'Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}')
+            print(f'Train Loss: {train_loss:.4f} | Val Loss: {metrics["loss"]:.4f}')
             print(f'Accuracy: {metrics["accuracy"]:.4f} | Precision: {metrics["precision"]:.4f}')
             print(f'Recall: {metrics["recall"]:.4f} | F1: {metrics["f1"]:.4f}')
             print('-' * 50)
