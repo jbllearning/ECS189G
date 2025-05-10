@@ -41,6 +41,6 @@ def train_and_evaluate(dataset_name, data_path):
 
 # Example usage:
 
-ORL_results = train_and_evaluate('ORL', get_data_path('ORL'))
+# ORL_results = train_and_evaluate('ORL', get_data_path('ORL'))
 MNIST_results = train_and_evaluate('MNIST', get_data_path('MNIST'))
 CIFAR10_results = train_and_evaluate('CIFAR10', get_data_path('CIFAR'))

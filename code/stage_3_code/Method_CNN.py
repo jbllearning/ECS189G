@@ -28,7 +28,7 @@ class Method_CNN(nn.Module):
             self.num_classes = 40
             self.fc_input_size = 128 * 14 * 11  # = 19712
         elif dataset_name == 'MNIST':
-            self.input_channels = 1
+            self.input_channels = 1 # grayscale
             self.input_size = (28, 28)
             self.num_classes = 10
             self.fc_input_size = 128 * 3 * 3
@@ -36,7 +36,7 @@ class Method_CNN(nn.Module):
             self.input_channels = 3
             self.input_size = (32, 32)
             self.num_classes = 10
-            self.fc_input_size = 128 * 3 * 3
+            self.fc_input_size = 128 * 4 * 4 # 32/8 = 4
 
         # Convolutional layers
         self.conv_layers = nn.Sequential(
@@ -71,7 +71,7 @@ class Method_CNN(nn.Module):
         )
 
         # Training parameters
-        self.max_epoch = 100
+        self.max_epoch = 20
         self.learning_rate = 0.001
         self.batch_size = 64 if dataset_name != 'ORL' else 16  # Smaller batch for ORL
 
@@ -130,14 +130,23 @@ class Method_CNN(nn.Module):
             # Print statistics
             epoch_time = time.time() - epoch_start
             print(f'Epoch {epoch + 1}/{self.max_epoch} - {epoch_time:.2f}s')
+            print("Dataset Name:", self.dataset_name)
             print(f'Train Loss: {train_loss:.4f} | Val Loss: {metrics["loss"]:.4f}')
             print(f'Accuracy: {metrics["accuracy"]:.4f} | Precision: {metrics["precision"]:.4f}')
             print(f'Recall: {metrics["recall"]:.4f} | F1: {metrics["f1"]:.4f}')
             print('-' * 50)
 
-            # Early stopping if accuracy reaches 95%
-            if metrics['accuracy'] >= 0.95:
-                print(f"Early stopping at {metrics['accuracy'] * 100:.2f}% accuracy")
+            # Early stopping if accuracy reaches 90% goal for ORL
+            if metrics['accuracy'] >= 0.90 and self.dataset_name == 'ORL':
+                print(f"Early stopping for {self.dataset_name} model at {metrics['accuracy'] * 100:.2f}% accuracy")
+                break
+            # Early stopping if accuracy reaches 95% goal for MNIST
+            elif metrics['accuracy'] >= 0.95 and self.dataset_name == 'MNIST':
+                print(f"Early stopping for {self.dataset_name} model at {metrics['accuracy'] * 100:.2f}% accuracy")
+                break
+            # Early stopping if accuracy reaches 70% goal for MNIST
+            elif metrics['accuracy'] >= 0.70 and self.dataset_name == 'CIFAR10':
+                print(f"Early stopping for {self.dataset_name} model at {metrics['accuracy'] * 100:.2f}% accuracy")
                 break
 
         # Load best model
