@@ -138,15 +138,15 @@ class Method_CNN(nn.Module):
 
             # Early stopping if accuracy reaches 90% goal for ORL
             if metrics['accuracy'] >= 0.90 and self.dataset_name == 'ORL':
-                print(f"Early stopping for {self.dataset_name} model at {metrics['accuracy'] * 100:.2f}% accuracy")
+                print(f"Early stopping for {self.dataset_name} model at {float(metrics['accuracy']) * 100:.2f}% accuracy")
                 break
             # Early stopping if accuracy reaches 95% goal for MNIST
             elif metrics['accuracy'] >= 0.95 and self.dataset_name == 'MNIST':
-                print(f"Early stopping for {self.dataset_name} model at {metrics['accuracy'] * 100:.2f}% accuracy")
+                print(f"Early stopping for {self.dataset_name} model at {float(metrics['accuracy']) * 100:.2f}% accuracy")
                 break
             # Early stopping if accuracy reaches 70% goal for MNIST
             elif metrics['accuracy'] >= 0.70 and self.dataset_name == 'CIFAR10':
-                print(f"Early stopping for {self.dataset_name} model at {metrics['accuracy'] * 100:.2f}% accuracy")
+                print(f"Early stopping for {self.dataset_name} model at {float(metrics['accuracy']) * 100:.2f}% accuracy")
                 break
 
         # Load best model
