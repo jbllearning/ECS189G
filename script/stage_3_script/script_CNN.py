@@ -25,7 +25,7 @@ def save_results(dataset_name, test_metrics, epoch_count, train_metrics):
         f.write(f"Recall: {train_metrics['recall']:.4f}\n")
         f.write(f"F1 Score: {train_metrics['f1']:.4f}\n\n")
 
-        f.write(f"Testing Performance for {dataset_name} (Final evaluation on full test set):\n")
+        f.write(f"Testing Performance for {dataset_name} (final evaluation on test set):\n")
         f.write(f"Loss: {test_metrics['loss']:.4f}\n")
         f.write(f"Accuracy: {test_metrics['accuracy']:.4f}\n")
         f.write(f"Precision: {test_metrics['precision']:.4f}\n")
@@ -55,7 +55,7 @@ def train_and_evaluate(dataset_name, data_path):
     # Final evaluation
     metrics = model.evaluate(test_loader)
 
-    print(f"\nTraining Performance for {dataset_name} (Final epoch on training data):")
+    print(f"\nTraining Performance for {dataset_name} (final epoch on training data):")
     print(f"Epochs Run: {epoch_count}")
     print(f"Train Loss: {train_metrics['loss']:.4f}")
     print(f"Accuracy: {train_metrics['accuracy']:.4f}")
