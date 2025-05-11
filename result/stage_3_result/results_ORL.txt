@@ -1,0 +1,6 @@
+Final Evaluation for ORL:
+Loss: 0.7258
+Accuracy: 0.9250
+Precision: 0.8875
+Recall: 0.9250
+F1 Score: 0.9000

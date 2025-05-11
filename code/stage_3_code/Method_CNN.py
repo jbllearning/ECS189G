@@ -13,7 +13,7 @@ import torch.optim as optim
 import time
 import os
 import pathlib
-
+import copy
 
 class Method_CNN(nn.Module):
     def __init__(self, mName, mDescription, dataset_name):
@@ -109,7 +109,9 @@ class Method_CNN(nn.Module):
 
             if metrics['accuracy'] > best_accuracy:
                 best_accuracy = metrics['accuracy']
-                best_model = self.state_dict()
+                #best_model = self.state_dict()
+                best_model = copy.deepcopy(self.state_dict())
+                #MNIST sometimes early stopping threshold, so best_model is never saved
 
             epoch_time = time.time() - epoch_start
             print(f'Epoch {epoch + 1}/{self.max_epoch} - {epoch_time:.2f}s')
@@ -163,8 +165,8 @@ class Method_CNN(nn.Module):
 
         plt.figure(figsize=(12, 5))
         plt.subplot(1, 2, 1)
-        plt.plot(train_loss, label='Train Loss')
-        plt.plot(val_loss, label='Validation Loss')
+        plt.plot(train_loss, label='Train Loss', marker='o')
+        plt.plot(val_loss, label='Validation Loss', marker='o')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.title('Training and Validation Loss')
@@ -172,7 +174,7 @@ class Method_CNN(nn.Module):
         plt.grid(True)
 
         plt.subplot(1, 2, 2)
-        plt.plot(accuracy, label='Accuracy', color='green')
+        plt.plot(accuracy, label='Accuracy', color='green', marker='o')
         plt.xlabel('Epoch')
         plt.ylabel('Accuracy')
         plt.title('Validation Accuracy')
