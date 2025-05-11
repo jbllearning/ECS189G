@@ -133,7 +133,8 @@ class Method_CNN(nn.Module):
 
         self.load_state_dict(best_model)
         self.plot_history(train_loss_history, val_loss_history, accuracy_history)
-        return best_accuracy
+        #return best_accuracy
+        return best_accuracy, epoch + 1
 
     def evaluate(self, data_loader):
         self.eval()

@@ -13,10 +13,11 @@ def get_data_path(dataset_name):
     data_path = PROJECT_ROOT / 'data' / 'stage_3_data' / dataset_name
     return str(data_path)
 
-def save_results(dataset_name, metrics):
+def save_results(dataset_name, metrics, epoch_count):
     result_path = RESULT_DIR / f'results_{dataset_name}.txt'
     with open(result_path, 'w') as f:
         f.write(f"Final Evaluation for {dataset_name}:\n")
+        f.write(f"Epochs Run: {epoch_count}\n")
         f.write(f"Loss: {metrics['loss']:.4f}\n")
         f.write(f"Accuracy: {metrics['accuracy']:.4f}\n")
         f.write(f"Precision: {metrics['precision']:.4f}\n")
@@ -37,12 +38,14 @@ def train_and_evaluate(dataset_name, data_path):
     test_loader = prepare_data(data['test'], dataset_name, model.batch_size)
 
     # Train model
-    best_accuracy = model.train_model(train_loader, test_loader)
+    #best_accuracy = model.train_model(train_loader, test_loader)
+    best_accuracy, epoch_count = model.train_model(train_loader, test_loader) #want to count epoch
 
     # Final evaluation
     metrics = model.evaluate(test_loader)
 
     print(f"\nFinal Evaluation for {dataset_name}:")
+    print(f"Epochs Run: {epoch_count}")
     print(f"Loss: {metrics['loss']:.4f}")
     print(f"Accuracy: {metrics['accuracy']:.4f}")
     print(f"Precision: {metrics['precision']:.4f}")
@@ -50,12 +53,12 @@ def train_and_evaluate(dataset_name, data_path):
     print(f"F1 Score: {metrics['f1']:.4f}")
 
     # Save results
-    save_results(dataset_name, metrics)
+    save_results(dataset_name, metrics, epoch_count)
 
     return metrics
 
 # Example usage:
-#ORL_results = train_and_evaluate('ORL', get_data_path('ORL'))
+ORL_results = train_and_evaluate('ORL', get_data_path('ORL'))
 MNIST_results = train_and_evaluate('MNIST', get_data_path('MNIST'))
-#CIFAR10_results = train_and_evaluate('CIFAR10', get_data_path('CIFAR'))
+CIFAR10_results = train_and_evaluate('CIFAR10', get_data_path('CIFAR'))
 

@@ -1,6 +1,7 @@
 Final Evaluation for MNIST:
-Loss: 0.0452
-Accuracy: 0.9845
-Precision: 0.9846
-Recall: 0.9844
-F1 Score: 0.9844
+Epochs Run: 1
+Loss: 0.0487
+Accuracy: 0.9834
+Precision: 0.9835
+Recall: 0.9832
+F1 Score: 0.9832

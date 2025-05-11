@@ -1,6 +1,7 @@
 Final Evaluation for CIFAR10:
-Loss: 0.7614
-Accuracy: 0.7308
-Precision: 0.7359
-Recall: 0.7308
-F1 Score: 0.7319
+Epochs Run: 4
+Loss: 0.8574
+Accuracy: 0.7016
+Precision: 0.7118
+Recall: 0.7016
+F1 Score: 0.7010
