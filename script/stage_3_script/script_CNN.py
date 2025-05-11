@@ -6,11 +6,23 @@ from code.stage_3_code.Data_Preprocessor import prepare_data
 
 # Get the absolute path to the project root folder
 PROJECT_ROOT = Path(__file__).parent.parent.parent
+RESULT_DIR = PROJECT_ROOT / 'result' / 'stage_3_result'
+RESULT_DIR.mkdir(parents=True, exist_ok=True)
 
 def get_data_path(dataset_name):
     data_path = PROJECT_ROOT / 'data' / 'stage_3_data' / dataset_name
-    # print(f"Resolved data path: {data_path}")  # Debug
     return str(data_path)
+
+def save_results(dataset_name, metrics):
+    result_path = RESULT_DIR / f'results_{dataset_name}.txt'
+    with open(result_path, 'w') as f:
+        f.write(f"Final Evaluation for {dataset_name}:\n")
+        f.write(f"Loss: {metrics['loss']:.4f}\n")
+        f.write(f"Accuracy: {metrics['accuracy']:.4f}\n")
+        f.write(f"Precision: {metrics['precision']:.4f}\n")
+        f.write(f"Recall: {metrics['recall']:.4f}\n")
+        f.write(f"F1 Score: {metrics['f1']:.4f}\n")
+    print(f"[Saved results to {result_path}]")
 
 def train_and_evaluate(dataset_name, data_path):
     # Load data
@@ -31,16 +43,19 @@ def train_and_evaluate(dataset_name, data_path):
     metrics = model.evaluate(test_loader)
 
     print(f"\nFinal Evaluation for {dataset_name}:")
-    print(f"Loss: {metrics['loss']:.4f}")  # Now includes loss
+    print(f"Loss: {metrics['loss']:.4f}")
     print(f"Accuracy: {metrics['accuracy']:.4f}")
     print(f"Precision: {metrics['precision']:.4f}")
     print(f"Recall: {metrics['recall']:.4f}")
     print(f"F1 Score: {metrics['f1']:.4f}")
 
+    # Save results
+    save_results(dataset_name, metrics)
+
     return metrics
 
 # Example usage:
-
-# ORL_results = train_and_evaluate('ORL', get_data_path('ORL'))
+#ORL_results = train_and_evaluate('ORL', get_data_path('ORL'))
 MNIST_results = train_and_evaluate('MNIST', get_data_path('MNIST'))
-CIFAR10_results = train_and_evaluate('CIFAR10', get_data_path('CIFAR'))
+#CIFAR10_results = train_and_evaluate('CIFAR10', get_data_path('CIFAR'))
+

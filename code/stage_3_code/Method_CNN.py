@@ -9,9 +9,10 @@ from code.stage_3_code.Evaluate_Metrics import Evaluate_Metrics
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
-
 import torch.optim as optim
 import time
+import os
+import pathlib
 
 
 class Method_CNN(nn.Module):
@@ -21,14 +22,13 @@ class Method_CNN(nn.Module):
         self.method_description = mDescription
         self.dataset_name = dataset_name
 
-        # Configure based on dataset
         if dataset_name == 'ORL':
-            self.input_channels = 1  # Using only R channel
+            self.input_channels = 1
             self.input_size = (112, 92)
             self.num_classes = 40
-            self.fc_input_size = 128 * 14 * 11  # = 19712
+            self.fc_input_size = 128 * 14 * 11
         elif dataset_name == 'MNIST':
-            self.input_channels = 1 # grayscale
+            self.input_channels = 1
             self.input_size = (28, 28)
             self.num_classes = 10
             self.fc_input_size = 128 * 3 * 3
@@ -36,25 +36,21 @@ class Method_CNN(nn.Module):
             self.input_channels = 3
             self.input_size = (32, 32)
             self.num_classes = 10
-            self.fc_input_size = 128 * 4 * 4 # 32/8 = 4
+            self.fc_input_size = 128 * 4 * 4
 
-        # Convolutional layers
         self.conv_layers = nn.Sequential(
-            # Layer 1
             nn.Conv2d(self.input_channels, 32, kernel_size=3, padding=1),
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Dropout(0.25),
 
-            # Layer 2
             nn.Conv2d(32, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Dropout(0.25),
 
-            # Layer 3
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
             nn.BatchNorm2d(128),
             nn.ReLU(),
@@ -62,7 +58,6 @@ class Method_CNN(nn.Module):
             nn.Dropout(0.25)
         )
 
-        # Fully connected layers
         self.fc_layers = nn.Sequential(
             nn.Linear(self.fc_input_size, 512),
             nn.ReLU(),
@@ -70,20 +65,13 @@ class Method_CNN(nn.Module):
             nn.Linear(512, self.num_classes)
         )
 
-        # Training parameters
         self.max_epoch = 20
         self.learning_rate = 0.001
-        self.batch_size = 64 if dataset_name != 'ORL' else 16  # Smaller batch for ORL
+        self.batch_size = 64 if dataset_name != 'ORL' else 16
 
     def forward(self, x):
-        # print(f"Input shape: {x.shape}")
-
-        x = self.conv_layers(x) # Convolutional layers
-        # print(f"After conv layers: {x.shape}")
-
-        x = x.view(x.size(0), -1)  # Flatten
-        # print(f"After flattening: {x.shape}")
-
+        x = self.conv_layers(x)
+        x = x.view(x.size(0), -1)
         x = self.fc_layers(x)
         return x
 
@@ -104,7 +92,6 @@ class Method_CNN(nn.Module):
             running_loss = 0.0
             epoch_start = time.time()
 
-            # Training loop
             for images, labels in train_loader:
                 optimizer.zero_grad()
                 outputs = self(images)
@@ -113,21 +100,17 @@ class Method_CNN(nn.Module):
                 optimizer.step()
                 running_loss += loss.item() * images.size(0)
 
-            # Validation loop
             metrics = self.evaluate(test_loader)
             train_loss = running_loss / len(train_loader.dataset)
 
-            # Store history
             train_loss_history.append(train_loss)
             val_loss_history.append(metrics['loss'])
             accuracy_history.append(metrics['accuracy'])
 
-            # Save best model
             if metrics['accuracy'] > best_accuracy:
                 best_accuracy = metrics['accuracy']
                 best_model = self.state_dict()
 
-            # Print statistics
             epoch_time = time.time() - epoch_start
             print(f'Epoch {epoch + 1}/{self.max_epoch} - {epoch_time:.2f}s')
             print("Dataset Name:", self.dataset_name)
@@ -136,25 +119,18 @@ class Method_CNN(nn.Module):
             print(f'Recall: {metrics["recall"]:.4f} | F1: {metrics["f1"]:.4f}')
             print('-' * 50)
 
-            # Early stopping if accuracy reaches 90% goal for ORL
             if metrics['accuracy'] >= 0.90 and self.dataset_name == 'ORL':
-                print(f"Early stopping for {self.dataset_name} model at {float(metrics['accuracy']) * 100:.2f}% accuracy")
+                print(f"Early stopping for {self.dataset_name} at {metrics['accuracy'] * 100:.2f}% accuracy")
                 break
-            # Early stopping if accuracy reaches 95% goal for MNIST
             elif metrics['accuracy'] >= 0.95 and self.dataset_name == 'MNIST':
-                print(f"Early stopping for {self.dataset_name} model at {float(metrics['accuracy']) * 100:.2f}% accuracy")
+                print(f"Early stopping for {self.dataset_name} at {metrics['accuracy'] * 100:.2f}% accuracy")
                 break
-            # Early stopping if accuracy reaches 70% goal for MNIST
             elif metrics['accuracy'] >= 0.70 and self.dataset_name == 'CIFAR10':
-                print(f"Early stopping for {self.dataset_name} model at {float(metrics['accuracy']) * 100:.2f}% accuracy")
+                print(f"Early stopping for {self.dataset_name} at {metrics['accuracy'] * 100:.2f}% accuracy")
                 break
 
-        # Load best model
         self.load_state_dict(best_model)
-
-        # Plot training history
         self.plot_history(train_loss_history, val_loss_history, accuracy_history)
-
         return best_accuracy
 
     def evaluate(self, data_loader):
@@ -173,23 +149,19 @@ class Method_CNN(nn.Module):
                 all_preds.extend(preds.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
 
-        # Calculate metrics
-        # Initialize once
         metrics_evaluator = Evaluate_Metrics('metrics evaluator', '')
-
-        # In evaluation code:
-        metrics_evaluator.data = {
-            'true_y': all_labels,
-            'pred_y': all_preds
-        }
+        metrics_evaluator.data = {'true_y': all_labels, 'pred_y': all_preds}
         metrics = metrics_evaluator.evaluate()
-        # Add loss to metrics dictionary
         metrics['loss'] = total_loss / len(data_loader.dataset)
         return metrics
 
     def plot_history(self, train_loss, val_loss, accuracy):
-        plt.figure(figsize=(12, 5))
+        script_root = pathlib.Path(__file__).parent
+        save_dir = script_root / 'training_plot'
+        save_dir.mkdir(parents=True, exist_ok=True)
+        save_path = save_dir / f'{self.dataset_name}_training_history.png'
 
+        plt.figure(figsize=(12, 5))
         plt.subplot(1, 2, 1)
         plt.plot(train_loss, label='Train Loss')
         plt.plot(val_loss, label='Validation Loss')

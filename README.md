@@ -11,6 +11,6 @@ For the path to data, this is defined in line 11 of script.CNN.py. This is based
 ### Notes
 Models will automatically stop training once their threshold is reached (defined line 139 of Method_CNN).
 
-Training plots are saved in stage_3_script. **Results of the training are saved at...**
+Training plots are saved in stage_3_script. **Results of the training are saved at stage_3_result.**
 
 The calls to Method_CNN are found in the bottom of the script_CNN.py
