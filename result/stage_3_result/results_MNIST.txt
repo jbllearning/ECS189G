@@ -1,7 +1,14 @@
-Testing Performance for MNIST:
+Training performance for MNIST (final epoch on training data):
 Epochs Run: 1
-Loss: 0.0452
-Accuracy: 0.9840
-Precision: 0.9844
-Recall: 0.9839
-F1 Score: 0.9841
+Train Loss: 0.2175
+Accuracy: 0.9859
+Precision: 0.9860
+Recall: 0.9858
+F1 Score: 0.9859
+
+Testing Performance for MNIST (Final evaluation on full test set):
+Loss: 0.0408
+Accuracy: 0.9859
+Precision: 0.9860
+Recall: 0.9858
+F1 Score: 0.9859

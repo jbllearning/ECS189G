@@ -133,8 +133,19 @@ class Method_CNN(nn.Module):
 
         self.load_state_dict(best_model)
         self.plot_history(train_loss_history, val_loss_history, accuracy_history)
+
+        #store the final training metrics
+        last_train_metrics = {
+            'loss': train_loss_history[-1],
+            'accuracy': accuracy_history[-1],
+            'precision': metrics['precision'],
+            'recall': metrics['recall'],
+            'f1': metrics['f1']
+        }
+
         #return best_accuracy
-        return best_accuracy, epoch + 1
+        return best_accuracy, epoch + 1, last_train_metrics
+
 
     def evaluate(self, data_loader):
         self.eval()
