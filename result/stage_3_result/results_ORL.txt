@@ -1,14 +1,14 @@
 Training performance for ORL (final epoch on training data):
-Epochs Run: 7
-Train Loss: 1.0365
+Epochs Run: 6
+Train Loss: 0.8297
 Accuracy: 0.9250
-Precision: 0.8958
+Precision: 0.9000
 Recall: 0.9250
-F1 Score: 0.9042
+F1 Score: 0.9083
 
 Testing Performance for ORL (final evaluation on test set):
-Loss: 0.5334
+Loss: 0.3556
 Accuracy: 0.9250
-Precision: 0.8958
+Precision: 0.9000
 Recall: 0.9250
-F1 Score: 0.9042
+F1 Score: 0.9083

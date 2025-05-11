@@ -1,7 +1,7 @@
 import pickle
 from pathlib import Path
 
-from code.stage_3_code.Method_CNN import Method_CNN
+from code.stage_3_code.Method_CNN_ablation import Method_CNN
 from code.stage_3_code.Data_Preprocessor import prepare_data
 
 # Get the absolute path to the project root folder
@@ -15,7 +15,7 @@ def get_data_path(dataset_name):
 
 #save both training and testing
 def save_results(dataset_name, test_metrics, epoch_count, train_metrics):
-    result_path = RESULT_DIR / f'results_{dataset_name}.txt'
+    result_path = RESULT_DIR / f'results_{dataset_name}_ablation.txt'
     with open(result_path, 'w') as f:
         f.write(f"Training performance for {dataset_name} (final epoch on training data):\n")
         f.write(f"Epochs Run: {epoch_count}\n")
@@ -63,6 +63,7 @@ def train_and_evaluate(dataset_name, data_path):
     print(f"Recall: {train_metrics['recall']:.4f}")
     print(f"F1 Score: {train_metrics['f1']:.4f}")
 
+
     # Save results
     save_results(dataset_name, metrics, epoch_count, train_metrics)
 
@@ -72,4 +73,3 @@ def train_and_evaluate(dataset_name, data_path):
 ORL_results = train_and_evaluate('ORL', get_data_path('ORL'))
 MNIST_results = train_and_evaluate('MNIST', get_data_path('MNIST'))
 CIFAR10_results = train_and_evaluate('CIFAR10', get_data_path('CIFAR'))
-

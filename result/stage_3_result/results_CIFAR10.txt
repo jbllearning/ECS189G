@@ -1,14 +1,14 @@
 Training performance for CIFAR10 (final epoch on training data):
-Epochs Run: 5
-Train Loss: 0.9463
-Accuracy: 0.7177
-Precision: 0.7168
-Recall: 0.7177
-F1 Score: 0.7101
+Epochs Run: 6
+Train Loss: 0.8909
+Accuracy: 0.7364
+Precision: 0.7401
+Recall: 0.7364
+F1 Score: 0.7334
 
 Testing Performance for CIFAR10 (final evaluation on test set):
-Loss: 0.8327
-Accuracy: 0.7177
-Precision: 0.7168
-Recall: 0.7177
-F1 Score: 0.7101
+Loss: 0.7596
+Accuracy: 0.7364
+Precision: 0.7401
+Recall: 0.7364
+F1 Score: 0.7334
