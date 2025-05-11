@@ -16,7 +16,7 @@ def get_data_path(dataset_name):
 def save_results(dataset_name, metrics, epoch_count):
     result_path = RESULT_DIR / f'results_{dataset_name}.txt'
     with open(result_path, 'w') as f:
-        f.write(f"Final Evaluation for {dataset_name}:\n")
+        f.write(f"Testing Performance for {dataset_name}:\n")
         f.write(f"Epochs Run: {epoch_count}\n")
         f.write(f"Loss: {metrics['loss']:.4f}\n")
         f.write(f"Accuracy: {metrics['accuracy']:.4f}\n")
@@ -44,7 +44,7 @@ def train_and_evaluate(dataset_name, data_path):
     # Final evaluation
     metrics = model.evaluate(test_loader)
 
-    print(f"\nFinal Evaluation for {dataset_name}:")
+    print(f"\nTesting Performance for {dataset_name}:")
     print(f"Epochs Run: {epoch_count}")
     print(f"Loss: {metrics['loss']:.4f}")
     print(f"Accuracy: {metrics['accuracy']:.4f}")

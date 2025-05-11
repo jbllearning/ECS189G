@@ -170,7 +170,7 @@ class Method_CNN(nn.Module):
         plt.plot(val_loss, label='Validation Loss', marker='o')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
-        plt.title('Training and Validation Loss')
+        plt.title('Training and Validation Loss') #Training Convergence Plot
         plt.legend()
         plt.grid(True)
 

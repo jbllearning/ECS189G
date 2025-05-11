@@ -1,7 +1,7 @@
-Final Evaluation for ORL:
-Epochs Run: 6
-Loss: 0.3986
-Accuracy: 0.9500
-Precision: 0.9333
-Recall: 0.9500
-F1 Score: 0.9375
+Testing Performance for ORL:
+Epochs Run: 5
+Loss: 0.5808
+Accuracy: 0.9000
+Precision: 0.8583
+Recall: 0.9000
+F1 Score: 0.8708

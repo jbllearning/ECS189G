@@ -1,7 +1,7 @@
-Final Evaluation for MNIST:
+Testing Performance for MNIST:
 Epochs Run: 1
-Loss: 0.0487
-Accuracy: 0.9834
-Precision: 0.9835
-Recall: 0.9832
-F1 Score: 0.9832
+Loss: 0.0452
+Accuracy: 0.9840
+Precision: 0.9844
+Recall: 0.9839
+F1 Score: 0.9841
