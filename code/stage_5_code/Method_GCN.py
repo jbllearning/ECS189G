@@ -1,10 +1,11 @@
-# File: ECS189G/code/stage_5_code/Method_GCN.py
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import os
 import sys
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+import json
 
 # Ensure correct import paths
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -16,39 +17,68 @@ from Result_Saver import Result_Saver
 
 
 class GCN(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim):
+    def __init__(self, input_dim, hidden_dim, output_dim, dropout=0.5):
         super(GCN, self).__init__()
         self.gc1 = nn.Linear(input_dim, hidden_dim)
         self.gc2 = nn.Linear(hidden_dim, output_dim)
+        self.dropout = dropout
 
     def forward(self, x, adj):
-        x = torch.mm(adj, x)  # Graph convolution
+        x = torch.mm(adj, x)
         x = self.gc1(x)
         x = F.relu(x)
+        x = F.dropout(x, p=self.dropout, training=self.training) # adding dropout
         x = torch.mm(adj, x)
         x = self.gc2(x)
         return x
 
+def compute_metrics(true, pred, average='macro'):
+    acc = accuracy_score(true, pred)
+    prec = precision_score(true, pred, average=average, zero_division=0)
+    rec = recall_score(true, pred, average=average, zero_division=0)
+    f1 = f1_score(true, pred, average=average, zero_division=0)
+    return acc, prec, rec, f1
 
-def train(model, features, adj, labels, idx_train, idx_test, epochs=200, lr=0.01, weight_decay=5e-4):
+def train(model, features, adj, labels, idx_train, idx_test, epochs=200, lr=0.01, weight_decay=5e-4, eval_interval=10):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     loss_fn = nn.CrossEntropyLoss()
+    history = []
+    best_acc = 0
+    best_state = None
 
-    model.train()
     for epoch in range(epochs):
+        model.train()
+
         optimizer.zero_grad()
         output = model(features, adj)
         loss = loss_fn(output[idx_train], labels[idx_train])
         loss.backward()
         optimizer.step()
 
-    model.eval()
-    with torch.no_grad():
-        output = model(features, adj)
-        pred = output.argmax(dim=1)
-        correct = pred[idx_test] == labels[idx_test]
-        acc = correct.sum().item() / len(idx_test)
-    return acc, pred
+        # evaluate every eval_interval number of epochs
+        if (epoch + 1) % eval_interval == 0 or epoch == epochs - 1:
+            model.eval()
+            with torch.no_grad():
+                logits = model(features, adj)
+                pred = logits.argmax(dim=1).cpu().numpy()
+                true = labels.cpu().numpy()
+                acc, prec, rec, f1 = compute_metrics(true[idx_test], pred[idx_test])
+                history.append({
+                    "epoch": epoch + 1,
+                    "accuracy": acc,
+                    "precision": prec,
+                    "recall": rec,
+                    "f1": f1
+                })
+                print(f"Epoch {epoch + 1}: Acc={acc:.4f}, Prec={prec:.4f}, Rec={rec:.4f}, F1={f1:.4f}")
+                if acc > best_acc:
+                    best_acc = acc
+                    best_state = model.state_dict()
+
+    # restore best state for best model
+    if best_state is not None:
+        model.load_state_dict(best_state)
+    return history, model
 
 
 def evaluate(model, features, adj, labels, idx):
@@ -61,7 +91,26 @@ def evaluate(model, features, adj, labels, idx):
     return acc
 
 
-def run_GCN_train_eval(dataset):
+def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.01, weight_decay=5e-4):
+    # Settings to log for your report
+    settings = {
+        "model": "2-layer GCN",
+        "layer_dimensions": "input -> hidden -> output = {} -> {} -> {}".format("depends on data", 16, "num_classes"),
+        "dropout": dropout,
+        "activation": "ReLU",
+        "optimizer": "Adam",
+        "learning_rate": lr,
+        "weight_decay": weight_decay,
+        "epochs": epochs,
+        "eval_interval": eval_interval,
+        "initialization": "PyTorch default (Kaiming for Linear layers)",
+        "dataset": dataset
+    }
+    print("=== Model & Experiment Settings ===")
+    for k, v in settings.items():
+        print(f"{k}: {v}")
+    print("===================================")
+
     # Set up dataset path using absolute path
     data_path = os.path.join(PROJECT_ROOT, "data", "stage_5_data", dataset)
 
@@ -82,10 +131,26 @@ def run_GCN_train_eval(dataset):
     hidden_dim = 16
     output_dim = int(labels.max().item()) + 1
 
-    model = GCN(input_dim, hidden_dim, output_dim)
-    acc, pred = train(model, features, adj, labels, idx_train, idx_test)
+    # Print actual input/output dims for reporting
+    print(f"Dataset: {dataset}")
+    print(f"Input dim: {input_dim}, Hidden dim: {hidden_dim}, Output dim: {output_dim}")
 
-    print(f"Accuracy on {dataset} test set: {acc:.4f}")
+    model = GCN(input_dim, hidden_dim, output_dim, dropout=dropout)
+    history, model = train(
+        model, features, adj, labels, idx_train, idx_test,
+        epochs=epochs, lr=lr, weight_decay=weight_decay, eval_interval=eval_interval
+    )
+
+    # Final evaluation on test set with best model
+    model.eval()
+    with torch.no_grad():
+        logits = model(features, adj)
+        pred = logits.argmax(dim=1).cpu().numpy()
+        true = labels.cpu().numpy()
+        acc, prec, rec, f1 = compute_metrics(true[idx_test], pred[idx_test])
+        print("\n=== Final Test Metrics ===")
+        print(f"Accuracy: {acc:.4f} | Precision: {prec:.4f} | Recall: {rec:.4f} | F1: {f1:.4f}")
+        print("=========================")
 
     # Save results using Result_Saver class
     saver = Result_Saver()
@@ -93,7 +158,26 @@ def run_GCN_train_eval(dataset):
     saver.result_destination_file_name = f"{dataset}_results"
     saver.fold_count = 0
     saver.data = {
-        'pred': pred[idx_test].cpu().numpy().tolist(),
-        'labels': labels[idx_test].cpu().numpy().tolist()
+        'pred': pred.tolist(),
+        'labels': true[idx_test].tolist()
     }
     saver.save()
+
+    # Save readable metrics log for report
+    metrics_path = os.path.join(PROJECT_ROOT, "result", "stage_5_results", f"{dataset}_metrics.json")
+    with open(metrics_path, "w") as f:
+        json.dump(history, f, indent=2)
+    print(f"Metrics history saved to {metrics_path}")
+
+    # Save final metrics as txt for easy copy-paste
+    with open(os.path.join(PROJECT_ROOT, "result", "stage_5_results", f"{dataset}_final_metrics.txt"), "w") as f:
+        f.write(f"Accuracy: {acc:.4f}\nPrecision: {prec:.4f}\nRecall: {rec:.4f}\nF1: {f1:.4f}\n")
+    print(f"Final metrics saved to {dataset}_final_metrics.txt")
+
+
+    # Save experiment settings for the report
+    settings['input_dim'] = input_dim
+    settings['output_dim'] = output_dim
+    with open(os.path.join(PROJECT_ROOT, "result", "stage_5_results", f"{dataset}_model_settings.json"), "w") as f:
+        json.dump(settings, f, indent=2)
+    print(f"Model settings saved to {dataset}_model_settings.json")

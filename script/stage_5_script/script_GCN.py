@@ -13,7 +13,15 @@ from Method_GCN import run_GCN_train_eval
 if __name__ == '__main__':
     os.makedirs("../../results/stage_5_results", exist_ok=True)
 
+    # train/test all three
     datasets = ["cora", "citeseer", "pubmed"]
     for dataset in datasets:
         print(f"\nRunning GCN on dataset: {dataset}")
         run_GCN_train_eval(dataset)
+
+    # try dropout values 0.5, 0.7, 0.9 for each dataset
+    # for dp in [0.5, 0.7, 0.9]:
+    #   print(f"\n--- Dropout {dp} ---")
+    run_GCN_train_eval('cora', dropout=0.7)
+    run_GCN_train_eval('citeseer', dropout=0.7)
+    run_GCN_train_eval('pubmed', dropout=0.7)
