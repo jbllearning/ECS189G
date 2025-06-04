@@ -177,7 +177,7 @@ def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.
     print(f"result saved to {result_path}")
 
     # convergence plot
-    plot_path = os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_training_plot.png")
+    plot_path = os.path.join(PROJECT_ROOT, "script", "stage_5_script", f"{dataset}_training_plot.png")
     plt.plot(loss_history)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
