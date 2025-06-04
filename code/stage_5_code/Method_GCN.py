@@ -5,6 +5,7 @@ import os
 import sys
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import json
+import matplotlib.pyplot as plt
 
 # Ensure correct import paths
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,7 +42,8 @@ def compute_metrics(true, pred, average='macro'):
 def train(model, features, adj, labels, idx_train, idx_test, epochs=200, lr=0.01, weight_decay=5e-4, eval_interval=10):
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
     loss_fn = nn.CrossEntropyLoss()
-    history = []
+    history = [] #stores evaluation metrics every eval_interval epochs
+    loss_history = []
     best_acc = 0
     best_state = None
 
@@ -52,6 +54,7 @@ def train(model, features, adj, labels, idx_train, idx_test, epochs=200, lr=0.01
         output = model(features, adj)
         loss = loss_fn(output[idx_train], labels[idx_train])
         loss.backward()
+        loss_history.append(loss.item())
         optimizer.step()
 
         # evaluate every eval_interval number of epochs
@@ -77,7 +80,7 @@ def train(model, features, adj, labels, idx_train, idx_test, epochs=200, lr=0.01
     # restore best state for best model
     if best_state is not None:
         model.load_state_dict(best_state)
-    return history, model
+    return history, model, loss_history
 
 
 def evaluate(model, features, adj, labels, idx):
@@ -135,7 +138,7 @@ def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.
     print(f"Input dim: {input_dim}, Hidden dim: {hidden_dim}, Output dim: {output_dim}")
 
     model = GCN(input_dim, hidden_dim, output_dim, dropout=dropout)
-    history, model = train(
+    history, model, loss_history= train(
         model, features, adj, labels, idx_train, idx_test,
         epochs=epochs, lr=lr, weight_decay=weight_decay, eval_interval=eval_interval
     )
@@ -151,11 +154,14 @@ def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.
         print(f"Accuracy: {acc:.4f} | Precision: {prec:.4f} | Recall: {rec:.4f} | F1: {f1:.4f}")
         print("=========================")
 
-    # Save everything in one summary file
+    # Save result
     result_path = os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_result.txt")
     with open(result_path, "w") as f:
         f.write("=== Final Test Metrics ===\n")
-        f.write(f"Accuracy: {acc:.4f}\nPrecision: {prec:.4f}\nRecall: {rec:.4f}\nF1: {f1:.4f}\n\n")
+        f.write(f"Accuracy: {acc:.4f}\n")
+        f.write(f"Precision: {prec:.4f}\n")
+        f.write(f"Recall: {rec:.4f}\n")
+        f.write(f"F1: {f1:.4f}\n")
 
         f.write("=== Model Settings ===\n")
         settings['input_dim'] = input_dim
@@ -169,3 +175,13 @@ def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.
                 f"Epoch {h['epoch']}: Acc={h['accuracy']:.4f}, Prec={h['precision']:.4f}, Rec={h['recall']:.4f}, F1={h['f1']:.4f}\n")
 
     print(f"result saved to {result_path}")
+
+    # convergence plot
+    plot_path = os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_training_plot.png")
+    plt.plot(loss_history)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title(f"{dataset} training convergence plot")
+    plt.grid(True)
+    plt.savefig(plot_path)
+    plt.close()
