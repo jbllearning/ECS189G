@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -154,8 +153,8 @@ def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.
 
     # Save results using Result_Saver class
     saver = Result_Saver()
-    saver.result_destination_folder_path = os.path.join(PROJECT_ROOT, "results", "stage_5_results") + "/"
-    saver.result_destination_file_name = f"{dataset}_results"
+    saver.result_destination_folder_path = os.path.join(PROJECT_ROOT, "result", "stage_5_result") + "/"
+    saver.result_destination_file_name = f"{dataset}_result"
     saver.fold_count = 0
     saver.data = {
         'pred': pred.tolist(),
@@ -164,13 +163,13 @@ def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.
     saver.save()
 
     # Save readable metrics log for report
-    metrics_path = os.path.join(PROJECT_ROOT, "result", "stage_5_results", f"{dataset}_metrics.json")
+    metrics_path = os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_metrics.json")
     with open(metrics_path, "w") as f:
         json.dump(history, f, indent=2)
     print(f"Metrics history saved to {metrics_path}")
 
     # Save final metrics as txt for easy copy-paste
-    with open(os.path.join(PROJECT_ROOT, "result", "stage_5_results", f"{dataset}_final_metrics.txt"), "w") as f:
+    with open(os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_final_metrics.txt"), "w") as f:
         f.write(f"Accuracy: {acc:.4f}\nPrecision: {prec:.4f}\nRecall: {rec:.4f}\nF1: {f1:.4f}\n")
     print(f"Final metrics saved to {dataset}_final_metrics.txt")
 
@@ -178,6 +177,6 @@ def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.
     # Save experiment settings for the report
     settings['input_dim'] = input_dim
     settings['output_dim'] = output_dim
-    with open(os.path.join(PROJECT_ROOT, "result", "stage_5_results", f"{dataset}_model_settings.json"), "w") as f:
+    with open(os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_model_settings.json"), "w") as f:
         json.dump(settings, f, indent=2)
     print(f"Model settings saved to {dataset}_model_settings.json")
