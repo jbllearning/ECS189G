@@ -1,0 +1,41 @@
+=== Final Test Metrics ===
+Accuracy: 0.7840
+Precision: 0.7737
+Recall: 0.7954
+F1: 0.7816
+=== Model Settings ===
+model: 2-layer GCN
+layer_dimensions: input -> hidden -> output = depends on data -> 16 -> num_classes
+dropout: 0.7
+activation: ReLU
+optimizer: Adam
+learning_rate: 0.01
+weight_decay: 0.0005
+epochs: 200
+eval_interval: 10
+initialization: PyTorch default (Kaiming for Linear layers)
+dataset: pubmed
+input_dim: 500
+output_dim: 3
+
+=== Evaluation History ===
+Epoch 10: Acc=0.6510, Prec=0.4498, Rec=0.5335, F1=0.4840
+Epoch 20: Acc=0.7710, Prec=0.7700, Rec=0.7827, F1=0.7712
+Epoch 30: Acc=0.7700, Prec=0.7748, Rec=0.7832, F1=0.7687
+Epoch 40: Acc=0.7870, Prec=0.7817, Rec=0.7944, F1=0.7838
+Epoch 50: Acc=0.7970, Prec=0.7947, Rec=0.8014, F1=0.7928
+Epoch 60: Acc=0.7880, Prec=0.7813, Rec=0.7915, F1=0.7845
+Epoch 70: Acc=0.7860, Prec=0.7786, Rec=0.7933, F1=0.7821
+Epoch 80: Acc=0.7850, Prec=0.7802, Rec=0.7942, F1=0.7816
+Epoch 90: Acc=0.7850, Prec=0.7734, Rec=0.7920, F1=0.7807
+Epoch 100: Acc=0.7860, Prec=0.7773, Rec=0.7954, F1=0.7813
+Epoch 110: Acc=0.7860, Prec=0.7778, Rec=0.7955, F1=0.7816
+Epoch 120: Acc=0.7820, Prec=0.7706, Rec=0.7925, F1=0.7775
+Epoch 130: Acc=0.7860, Prec=0.7754, Rec=0.7936, F1=0.7815
+Epoch 140: Acc=0.7780, Prec=0.7659, Rec=0.7871, F1=0.7729
+Epoch 150: Acc=0.7820, Prec=0.7700, Rec=0.7911, F1=0.7773
+Epoch 160: Acc=0.7770, Prec=0.7658, Rec=0.7882, F1=0.7730
+Epoch 170: Acc=0.7780, Prec=0.7675, Rec=0.7911, F1=0.7748
+Epoch 180: Acc=0.7830, Prec=0.7738, Rec=0.7952, F1=0.7807
+Epoch 190: Acc=0.7820, Prec=0.7725, Rec=0.7955, F1=0.7795
+Epoch 200: Acc=0.7840, Prec=0.7737, Rec=0.7954, F1=0.7816
