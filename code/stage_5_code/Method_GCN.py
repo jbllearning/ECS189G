@@ -151,32 +151,21 @@ def run_GCN_train_eval(dataset, dropout=0.5, epochs=200, eval_interval=10, lr=0.
         print(f"Accuracy: {acc:.4f} | Precision: {prec:.4f} | Recall: {rec:.4f} | F1: {f1:.4f}")
         print("=========================")
 
-    # Save results using Result_Saver class
-    saver = Result_Saver()
-    saver.result_destination_folder_path = os.path.join(PROJECT_ROOT, "result", "stage_5_result") + "/"
-    saver.result_destination_file_name = f"{dataset}_result"
-    saver.fold_count = 0
-    saver.data = {
-        'pred': pred.tolist(),
-        'labels': true[idx_test].tolist()
-    }
-    saver.save()
+    # Save everything in one summary file
+    result_path = os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_result.txt")
+    with open(result_path, "w") as f:
+        f.write("=== Final Test Metrics ===\n")
+        f.write(f"Accuracy: {acc:.4f}\nPrecision: {prec:.4f}\nRecall: {rec:.4f}\nF1: {f1:.4f}\n\n")
 
-    # Save readable metrics log for report
-    metrics_path = os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_metrics.json")
-    with open(metrics_path, "w") as f:
-        json.dump(history, f, indent=2)
-    print(f"Metrics history saved to {metrics_path}")
+        f.write("=== Model Settings ===\n")
+        settings['input_dim'] = input_dim
+        settings['output_dim'] = output_dim
+        for k, v in settings.items():
+            f.write(f"{k}: {v}\n")
 
-    # Save final metrics as txt for easy copy-paste
-    with open(os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_final_metrics.txt"), "w") as f:
-        f.write(f"Accuracy: {acc:.4f}\nPrecision: {prec:.4f}\nRecall: {rec:.4f}\nF1: {f1:.4f}\n")
-    print(f"Final metrics saved to {dataset}_final_metrics.txt")
+        f.write("\n=== Evaluation History ===\n")
+        for h in history:
+            f.write(
+                f"Epoch {h['epoch']}: Acc={h['accuracy']:.4f}, Prec={h['precision']:.4f}, Rec={h['recall']:.4f}, F1={h['f1']:.4f}\n")
 
-
-    # Save experiment settings for the report
-    settings['input_dim'] = input_dim
-    settings['output_dim'] = output_dim
-    with open(os.path.join(PROJECT_ROOT, "result", "stage_5_result", f"{dataset}_model_settings.json"), "w") as f:
-        json.dump(settings, f, indent=2)
-    print(f"Model settings saved to {dataset}_model_settings.json")
+    print(f"result saved to {result_path}")
