@@ -88,10 +88,10 @@ class Dataset_Loader(dataset):
         idx_val = torch.LongTensor(idx_val)
         idx_test = torch.LongTensor(idx_test)
         # get the training nodes/testing nodes
-        # train_x = features[idx_train]
-        # val_x = features[idx_val]
-        # test_x = features[idx_test]
-        # print(train_x, val_x, test_x)
+        train_x = features[idx_train]
+        val_x = features[idx_val]
+        test_x = features[idx_test]
+        #print(train_x, val_x, test_x)
 
         train_test_val = {'idx_train': idx_train, 'idx_test': idx_test, 'idx_val': idx_val}
         graph = {'node': idx_map, 'edge': edges, 'X': features, 'y': labels, 'utility': {'A': adj, 'reverse_idx': reverse_idx_map}}

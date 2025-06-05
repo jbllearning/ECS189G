@@ -16,3 +16,4 @@ The script will This script will:
 
 ### Notes
 Training plots are saved in script/stage_5_script. **Results of the training are saved in result/stage_5_result.**
+Same concepts for ablation studies.

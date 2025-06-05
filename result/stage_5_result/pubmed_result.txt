@@ -1,12 +1,12 @@
 === Final Test Metrics ===
-Accuracy: 0.7800
-Precision: 0.7686
-Recall: 0.7920
-F1: 0.7771
+Accuracy: 0.7880
+Precision: 0.7763
+Recall: 0.7992
+F1: 0.7849
 === Model Settings ===
 model: 2-layer GCN
 layer_dimensions: input -> hidden -> output = depends on data -> 16 -> num_classes
-dropout: 0.7
+dropout: 0.5
 activation: ReLU
 optimizer: Adam
 learning_rate: 0.01
@@ -19,23 +19,23 @@ input_dim: 500
 output_dim: 3
 
 === Evaluation History ===
-Epoch 10: Acc=0.6910, Prec=0.6941, Rec=0.7249, F1=0.6846
-Epoch 20: Acc=0.7260, Prec=0.7141, Rec=0.7382, F1=0.7214
-Epoch 30: Acc=0.7510, Prec=0.7436, Rec=0.7589, F1=0.7498
-Epoch 40: Acc=0.7710, Prec=0.7682, Rec=0.7765, F1=0.7705
-Epoch 50: Acc=0.7770, Prec=0.7703, Rec=0.7855, F1=0.7750
-Epoch 60: Acc=0.7840, Prec=0.7776, Rec=0.7957, F1=0.7818
-Epoch 70: Acc=0.7820, Prec=0.7742, Rec=0.7909, F1=0.7813
-Epoch 80: Acc=0.7860, Prec=0.7825, Rec=0.7948, F1=0.7838
-Epoch 90: Acc=0.7830, Prec=0.7737, Rec=0.7902, F1=0.7806
-Epoch 100: Acc=0.7830, Prec=0.7799, Rec=0.7915, F1=0.7807
-Epoch 110: Acc=0.7860, Prec=0.7749, Rec=0.7944, F1=0.7818
-Epoch 120: Acc=0.7820, Prec=0.7719, Rec=0.7915, F1=0.7781
-Epoch 130: Acc=0.7800, Prec=0.7698, Rec=0.7897, F1=0.7764
-Epoch 140: Acc=0.7830, Prec=0.7720, Rec=0.7914, F1=0.7799
-Epoch 150: Acc=0.7840, Prec=0.7763, Rec=0.7945, F1=0.7814
-Epoch 160: Acc=0.7830, Prec=0.7728, Rec=0.7966, F1=0.7812
-Epoch 170: Acc=0.7840, Prec=0.7738, Rec=0.7915, F1=0.7812
-Epoch 180: Acc=0.7860, Prec=0.7810, Rec=0.7986, F1=0.7842
-Epoch 190: Acc=0.7810, Prec=0.7723, Rec=0.7861, F1=0.7784
-Epoch 200: Acc=0.7800, Prec=0.7686, Rec=0.7920, F1=0.7771
+Epoch 10: Acc=0.6950, Prec=0.7085, Rec=0.7062, F1=0.6975
+Epoch 20: Acc=0.6760, Prec=0.6957, Rec=0.6877, F1=0.6713
+Epoch 30: Acc=0.7590, Prec=0.7528, Rec=0.7685, F1=0.7596
+Epoch 40: Acc=0.7710, Prec=0.7617, Rec=0.7815, F1=0.7692
+Epoch 50: Acc=0.7810, Prec=0.7733, Rec=0.7930, F1=0.7785
+Epoch 60: Acc=0.7830, Prec=0.7766, Rec=0.7931, F1=0.7800
+Epoch 70: Acc=0.7830, Prec=0.7721, Rec=0.7975, F1=0.7791
+Epoch 80: Acc=0.7830, Prec=0.7750, Rec=0.7925, F1=0.7782
+Epoch 90: Acc=0.7790, Prec=0.7709, Rec=0.7886, F1=0.7756
+Epoch 100: Acc=0.7740, Prec=0.7614, Rec=0.7907, F1=0.7698
+Epoch 110: Acc=0.7900, Prec=0.7811, Rec=0.7957, F1=0.7865
+Epoch 120: Acc=0.7830, Prec=0.7755, Rec=0.7968, F1=0.7779
+Epoch 130: Acc=0.7930, Prec=0.7832, Rec=0.8017, F1=0.7890
+Epoch 140: Acc=0.7830, Prec=0.7707, Rec=0.7962, F1=0.7788
+Epoch 150: Acc=0.7830, Prec=0.7729, Rec=0.7981, F1=0.7784
+Epoch 160: Acc=0.7940, Prec=0.7887, Rec=0.8029, F1=0.7922
+Epoch 170: Acc=0.7780, Prec=0.7679, Rec=0.7896, F1=0.7765
+Epoch 180: Acc=0.7840, Prec=0.7727, Rec=0.7969, F1=0.7804
+Epoch 190: Acc=0.7920, Prec=0.7830, Rec=0.8028, F1=0.7891
+Epoch 200: Acc=0.7880, Prec=0.7763, Rec=0.7992, F1=0.7849
