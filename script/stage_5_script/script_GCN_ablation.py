@@ -18,9 +18,7 @@ if __name__ == '__main__':
         print(f"\nRunning GCN on dataset: {dataset}")
         run_GCN_train_eval(dataset)
 
-    # try dropout values 0.5, 0.7, 0.9 for each dataset
-    # for dp in [0.5, 0.7, 0.9]:
-    #   print(f"\n--- Dropout {dp} ---")
-    run_GCN_train_eval('cora', dropout=0.5)
-    run_GCN_train_eval('citeseer', dropout=0.5)
-    run_GCN_train_eval('pubmed', dropout=0.5)
+    # 0.7 droprate ablation
+    run_GCN_train_eval('cora', dropout=0.7)
+    run_GCN_train_eval('citeseer', dropout=0.7)
+    run_GCN_train_eval('pubmed', dropout=0.7)
